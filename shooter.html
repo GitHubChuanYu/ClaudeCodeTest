@@ -320,42 +320,93 @@ class Player {
     }
   }
   draw() {
+    // Donald Duck — side-view 2D sprite
     ctx.save();
     ctx.translate(this.x, this.y);
 
-    // Legs
-    const legSwing = Math.sin(this.walkCycle * Math.PI * 2) * 5;
-    ctx.fillStyle = '#2a3a6a';
-    ctx.fillRect(-4, 10, 5, 10 + legSwing);
-    ctx.fillRect(1,  10, 5, 10 - legSwing);
+    const face = mouse.x >= this.x ? 1 : -1;
+    ctx.scale(face, 1);
 
-    // Body bob
+    const ls  = Math.sin(this.walkCycle * Math.PI * 2) * 4;
     const bob = Math.abs(Math.sin(this.walkCycle * Math.PI * 2)) * 1.5;
     ctx.translate(0, -bob);
 
-    // Body
-    ctx.beginPath(); ctx.arc(0, 0, 13, 0, Math.PI * 2);
-    ctx.fillStyle   = C.panel;
-    ctx.shadowBlur  = 10; ctx.shadowColor = C.teal;
-    ctx.strokeStyle = C.teal; ctx.lineWidth = 2.5;
-    ctx.fill(); ctx.stroke();
-    ctx.shadowBlur = 0;
-
-    // Gun + eyes (rotated toward mouse)
-    ctx.rotate(this.angle);
-
-    // Eyes (two white dots in facing direction)
+    // Tail feathers
     ctx.fillStyle = C.white;
-    ctx.beginPath(); ctx.arc(7, -3.5, 2.5, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.arc(7,  3.5, 2.5, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(-8,-1); ctx.lineTo(-16,-6); ctx.lineTo(-14,1);
+    ctx.lineTo(-17,7); ctx.lineTo(-8,6);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#cccccc'; ctx.lineWidth = 1; ctx.stroke();
 
-    // Gun barrel
+    // Legs
+    ctx.strokeStyle = '#ff8800'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(-3,9); ctx.lineTo(-4,15+ls); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(3,9);  ctx.lineTo(5,15-ls);  ctx.stroke();
+    ctx.lineCap = 'butt';
+    // Webbed feet
+    ctx.fillStyle = '#ff8800';
+    ctx.beginPath(); ctx.moveTo(-4,15+ls); ctx.lineTo(-10,19+ls); ctx.lineTo(-2,18+ls); ctx.lineTo(3,19+ls);  ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(5,15-ls);  ctx.lineTo(-1,19-ls);  ctx.lineTo(7,18-ls);  ctx.lineTo(12,19-ls); ctx.closePath(); ctx.fill();
+
+    // Round white body
+    ctx.beginPath(); ctx.arc(0, 2, 11, 0, Math.PI*2);
+    ctx.fillStyle = C.white;
     ctx.shadowBlur = 8; ctx.shadowColor = C.teal;
-    ctx.fillStyle  = C.teal;
-    ctx.fillRect(9,  -2.5, 14, 5);   // barrel
-    ctx.fillStyle = '#1a5f58';
-    ctx.fillRect(5,  -4,   8,  8);   // grip block
+    ctx.strokeStyle = C.teal; ctx.lineWidth = 2;
+    ctx.fill(); ctx.stroke(); ctx.shadowBlur = 0;
+
+    // Blue sailor jacket / V-collar
+    ctx.fillStyle = '#1a56cc';
+    ctx.beginPath();
+    ctx.moveTo(-7,-3); ctx.lineTo(0,-9); ctx.lineTo(7,-3); ctx.lineTo(6,4); ctx.lineTo(-6,4);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = C.white; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(-7,-3); ctx.lineTo(0,-8); ctx.lineTo(7,-3); ctx.stroke();
+
+    // Gun arm (tilts up/down toward mouse)
+    const gunTilt = Math.atan2(mouse.y - this.y, Math.abs(mouse.x - this.x));
+    ctx.save();
+    ctx.translate(8, 0); ctx.rotate(gunTilt);
+    ctx.fillStyle = C.white; ctx.fillRect(0,-2.5,8,5);          // arm
+    ctx.shadowBlur = 8; ctx.shadowColor = C.teal;
+    ctx.fillStyle = '#334';  ctx.fillRect(7,-2,14,4);            // barrel
+    ctx.fillStyle = '#556';  ctx.fillRect(6,-4,7,8);             // grip
     ctx.shadowBlur = 0;
+    ctx.restore();
+
+    // White head
+    ctx.beginPath(); ctx.arc(4,-13,9,0,Math.PI*2);
+    ctx.fillStyle = C.white; ctx.fill();
+    ctx.strokeStyle = C.teal; ctx.lineWidth = 1.5; ctx.stroke();
+
+    // Donald's big orange bill
+    ctx.fillStyle = '#ff6600';
+    ctx.beginPath();
+    ctx.moveTo(10,-16); ctx.lineTo(25,-14); ctx.lineTo(25,-11); ctx.lineTo(10,-10);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#cc4400'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.strokeStyle = '#ff9940'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(11,-15); ctx.lineTo(24,-13); ctx.stroke();
+    ctx.fillStyle = '#cc4400';
+    ctx.beginPath(); ctx.arc(18,-14,1.3,0,Math.PI*2); ctx.fill();  // nostril
+
+    // Eye
+    ctx.fillStyle = '#111';
+    ctx.beginPath(); ctx.arc(7,-16,3,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#1a4488';
+    ctx.beginPath(); ctx.arc(7,-16,1.5,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = C.white;
+    ctx.beginPath(); ctx.arc(8,-17,1.2,0,Math.PI*2); ctx.fill();
+
+    // Sailor hat
+    ctx.fillStyle = '#1a56cc';
+    ctx.fillRect(-4,-25,18,4);    // brim
+    ctx.fillRect(-1,-33,15,9);    // hat body
+    ctx.fillStyle = C.white;
+    ctx.fillRect(-1,-26,15,2);    // white band
+    ctx.fillStyle = '#cc0000';
+    ctx.fillRect(4,-33,5,5);      // red stripe
 
     ctx.restore();
 
@@ -363,8 +414,8 @@ class Player {
     if (this.invincibleTimer > 0 && Math.floor(this.invincibleTimer * 22) % 2 === 0) {
       ctx.save();
       ctx.translate(this.x, this.y);
-      ctx.globalAlpha = 0.45;
-      ctx.beginPath(); ctx.arc(0, 0, 15, 0, Math.PI * 2);
+      ctx.globalAlpha = 0.4;
+      ctx.beginPath(); ctx.arc(0,0,15,0,Math.PI*2);
       ctx.fillStyle = C.white; ctx.fill();
       ctx.restore();
     }
@@ -426,82 +477,76 @@ class BasicEnemy extends Enemy {
     this.explosionColor = C.accent;
   }
   draw() {
-    // Front-facing Compysognathus — small chubby dino
+    // Side-view small raptor (Compysognathus)
     const color = this.flashTimer > 0 ? C.white : C.accent;
-    const ls = Math.sin(this.walkCycle * Math.PI * 2) * 4;
-    const bob = Math.abs(Math.sin(this.walkCycle * Math.PI * 2)) * 1.5;
+    const ls  = Math.sin(this.walkCycle * Math.PI * 2) * 5;
+    const face = player ? (player.x >= this.x ? 1 : -1) : 1;
     ctx.save();
-    ctx.translate(this.x, this.y - bob);
+    ctx.translate(this.x, this.y);
+    ctx.scale(face, 1);
 
-    // Legs (front-facing, hanging down)
+    // Tail (extends backward = -x)
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(-10,-1); ctx.quadraticCurveTo(-21,-7,-26,0); ctx.quadraticCurveTo(-21,6,-10,4);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#ff8080'; ctx.lineWidth = 1.5; ctx.stroke();
+
+    // Back leg
     ctx.fillStyle = '#7a1a28';
-    ctx.fillRect(-8, 9, 6, 10 + ls);
-    ctx.fillRect(2,  9, 6, 10 - ls);
-    ctx.fillStyle = '#cc2233';
-    ctx.fillRect(-11, 18+ls, 9, 3); ctx.fillRect(-12, 16+ls, 2, 3); ctx.fillRect(-3, 16+ls, 2, 3);
-    ctx.fillRect(-1,  18-ls, 9, 3); ctx.fillRect(0,   16-ls, 2, 3); ctx.fillRect(8,  16-ls, 2, 3);
+    ctx.beginPath(); ctx.moveTo(-3,6); ctx.lineTo(-6,15+ls); ctx.lineTo(-1,15+ls); ctx.closePath(); ctx.fill();
+    ctx.fillRect(-8,14+ls,9,2.5); ctx.fillRect(-8,12+ls,2,3);
+    // Front leg
+    ctx.beginPath(); ctx.moveTo(3,6); ctx.lineTo(2,15-ls); ctx.lineTo(7,15-ls); ctx.closePath(); ctx.fill();
+    ctx.fillRect(0,14-ls,9,2.5); ctx.fillRect(6,12-ls,2,3);
 
-    // Oval body
-    ctx.save(); ctx.scale(0.9, 1.1);
-    ctx.beginPath(); ctx.arc(0, 3, 11, 0, Math.PI*2);
+    // Body (slight forward lean)
+    ctx.save(); ctx.rotate(-0.2); ctx.scale(1.3,0.9);
+    ctx.beginPath(); ctx.arc(0,0,11,0,Math.PI*2);
     ctx.fillStyle = color;
     ctx.shadowBlur = 8; ctx.shadowColor = C.accent;
     ctx.strokeStyle = '#ff8080'; ctx.lineWidth = 2;
     ctx.fill(); ctx.stroke(); ctx.shadowBlur = 0;
     ctx.restore();
-    // Belly highlight
-    ctx.fillStyle = '#ff9090';
-    ctx.save(); ctx.scale(0.5, 0.65); ctx.beginPath(); ctx.arc(0, 8, 9, 0, Math.PI*2); ctx.fill(); ctx.restore();
 
-    // Arms sticking out from sides
-    ctx.fillStyle = '#aa2233';
-    ctx.beginPath(); ctx.moveTo(-10,-2); ctx.lineTo(-16,5); ctx.lineTo(-13,9); ctx.lineTo(-8,4); ctx.closePath(); ctx.fill();
-    ctx.beginPath(); ctx.moveTo(10,-2);  ctx.lineTo(16,5);  ctx.lineTo(13,9);  ctx.lineTo(8,4);  ctx.closePath(); ctx.fill();
-    ctx.fillStyle = '#ff4444';
-    ctx.fillRect(-18,6,3,2); ctx.fillRect(-16,8,3,2);
-    ctx.fillRect(13,6,3,2);  ctx.fillRect(11,8,3,2);
+    // Small arms
+    ctx.strokeStyle = '#cc3344'; ctx.lineWidth = 2; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(6,-2); ctx.lineTo(12,3); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(12,3); ctx.lineTo(14,1); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(12,3); ctx.lineTo(14,5); ctx.stroke();
+    ctx.lineCap = 'butt';
 
     // Neck
     ctx.fillStyle = color;
-    ctx.fillRect(-5,-10,10,12);
+    ctx.beginPath();
+    ctx.moveTo(9,-5); ctx.lineTo(15,-12); ctx.lineTo(19,-8); ctx.lineTo(14,-3);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#ff8080'; ctx.lineWidth = 1.5; ctx.stroke();
 
-    // Round head
-    ctx.beginPath(); ctx.arc(0,-18,11,0,Math.PI*2);
+    // Head
+    ctx.beginPath(); ctx.arc(18,-11,8,0,Math.PI*2);
     ctx.fillStyle = color; ctx.fill();
     ctx.strokeStyle = '#ff8080'; ctx.lineWidth = 2; ctx.stroke();
 
-    // Head spikes
-    ctx.fillStyle = '#ff4040';
-    ctx.beginPath(); ctx.moveTo(-6,-28); ctx.lineTo(-4,-23); ctx.lineTo(-2,-28); ctx.fill();
-    ctx.beginPath(); ctx.moveTo(2,-28);  ctx.lineTo(4,-23);  ctx.lineTo(6,-28);  ctx.fill();
-
-    // Open jaw (front-facing: bottom of face)
+    // Upper jaw (profile, extends +x)
     ctx.fillStyle = '#aa1122';
-    ctx.beginPath(); ctx.moveTo(-7,-10); ctx.lineTo(7,-10); ctx.lineTo(8,-6); ctx.lineTo(-8,-6); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(15,-15); ctx.lineTo(30,-13); ctx.lineTo(30,-10); ctx.lineTo(15,-11); ctx.closePath(); ctx.fill();
+    // Lower jaw
+    ctx.beginPath(); ctx.moveTo(15,-8); ctx.lineTo(28,-7); ctx.lineTo(28,-5); ctx.lineTo(15,-6); ctx.closePath(); ctx.fill();
+
+    // Teeth
     ctx.fillStyle = C.white;
-    ctx.beginPath(); ctx.moveTo(-5,-10); ctx.lineTo(-6,-6); ctx.lineTo(-3,-10); ctx.fill();
-    ctx.beginPath(); ctx.moveTo(0,-10);  ctx.lineTo(-1,-6); ctx.lineTo(2,-10);  ctx.fill();
-    ctx.beginPath(); ctx.moveTo(4,-10);  ctx.lineTo(3,-6);  ctx.lineTo(6,-10);  ctx.fill();
+    ctx.beginPath(); ctx.moveTo(18,-11); ctx.lineTo(17,-8); ctx.lineTo(20,-11); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(22,-11); ctx.lineTo(21,-8); ctx.lineTo(24,-11); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(18,-13); ctx.lineTo(17,-16); ctx.lineTo(20,-13); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(23,-13); ctx.lineTo(22,-16); ctx.lineTo(25,-13); ctx.fill();
 
-    // Two front-facing eyes
+    // Eye (side profile — one eye)
     ctx.fillStyle = '#110000';
-    ctx.beginPath(); ctx.arc(-5,-20,3.5,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle = C.white; ctx.beginPath(); ctx.arc(-4,-21,1.5,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#ff0000'; ctx.fillRect(-5.8,-22.5,1.5,4);
-    ctx.fillStyle = '#110000';
-    ctx.beginPath(); ctx.arc(5,-20,3.5,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle = C.white; ctx.beginPath(); ctx.arc(6,-21,1.5,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#ff0000'; ctx.fillRect(4.2,-22.5,1.5,4);
-
-    // Angry brows
-    ctx.strokeStyle = '#ff4040'; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(-9,-24); ctx.lineTo(-2,-22); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(9,-24);  ctx.lineTo(2,-22);  ctx.stroke();
-
-    // Nostrils
-    ctx.fillStyle = '#660011';
-    ctx.beginPath(); ctx.arc(-2,-15,1.2,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(2,-15,1.2,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(15,-14,3.5,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = C.white;
+    ctx.beginPath(); ctx.arc(16,-15,1.5,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#ff0000'; ctx.fillRect(14.5,-16.5,1.5,4);
 
     ctx.restore();
     drawEnemyHPBar(this);
@@ -525,12 +570,12 @@ class FastEnemy extends Enemy {
     super.update(dt);
   }
   draw() {
-    // Front-facing Velociraptor — lean mean predator
+    // Side-view Velociraptor — low hunting posture
     const color = this.flashTimer > 0 ? C.white : C.orange;
-    const ls = Math.sin(this.walkCycle * Math.PI * 2) * 6;
-    const bob = Math.abs(Math.sin(this.walkCycle * Math.PI * 2)) * 2;
+    const ls  = Math.sin(this.walkCycle * Math.PI * 2) * 6;
+    const face = player ? (player.x >= this.x ? 1 : -1) : 1;
 
-    // Ghost trail (screen-space, no rotation)
+    // Ghost trail
     const dx = this.x - this.prevX, dy = this.y - this.prevY;
     for (let i = 1; i <= 3; i++) {
       ctx.save();
@@ -542,80 +587,87 @@ class FastEnemy extends Enemy {
     }
 
     ctx.save();
-    ctx.translate(this.x, this.y - bob);
+    ctx.translate(this.x, this.y);
+    ctx.scale(face, 1);
 
-    // Long legs with sickle claws
-    ctx.fillStyle = '#993300';
-    ctx.beginPath(); ctx.moveTo(-5,7); ctx.lineTo(-9,18+ls); ctx.lineTo(-2,18+ls); ctx.closePath(); ctx.fill();
-    // Sickle claw left
-    ctx.fillStyle = '#ffaa00';
-    ctx.beginPath(); ctx.moveTo(-9,17+ls); ctx.lineTo(-14,13+ls); ctx.lineTo(-8,14+ls); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = '#993300';
-    ctx.beginPath(); ctx.moveTo(5,7);  ctx.lineTo(2,18-ls);  ctx.lineTo(9,18-ls);  ctx.closePath(); ctx.fill();
-    // Sickle claw right
-    ctx.fillStyle = '#ffaa00';
-    ctx.beginPath(); ctx.moveTo(9,17-ls); ctx.lineTo(14,13-ls); ctx.lineTo(8,14-ls); ctx.closePath(); ctx.fill();
+    // Long sweeping tail (nearly horizontal, extends -x)
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(-8,-2); ctx.quadraticCurveTo(-20,-9,-30,-3);
+    ctx.lineTo(-30,0); ctx.quadraticCurveTo(-20,-3,-8,3);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#ffaa55'; ctx.lineWidth = 1; ctx.stroke();
 
-    // Lean elongated body
-    ctx.save(); ctx.scale(0.75, 1.1);
-    ctx.beginPath(); ctx.arc(0, 2, 9, 0, Math.PI*2);
+    // Feather crest along tail/back
+    ctx.fillStyle = '#ff8800';
+    for (let i = 0; i < 4; i++) {
+      const fx = -4 - i*5;
+      ctx.beginPath(); ctx.moveTo(fx,-5); ctx.lineTo(fx-2,-13); ctx.lineTo(fx+2,-4); ctx.fill();
+    }
+
+    // Back leg (planted)
+    ctx.fillStyle = '#993300';
+    ctx.beginPath(); ctx.moveTo(-4,5); ctx.lineTo(-7,16+ls); ctx.lineTo(0,16+ls); ctx.closePath(); ctx.fill();
+    ctx.fillRect(-9,15+ls,11,2.5);
+    ctx.fillStyle = '#ffaa00';
+    ctx.beginPath(); ctx.moveTo(-8,14+ls); ctx.lineTo(-13,10+ls); ctx.lineTo(-7,12+ls); ctx.closePath(); ctx.fill(); // sickle claw
+
+    // Front leg (raised, attacking)
+    ctx.fillStyle = '#993300';
+    ctx.beginPath(); ctx.moveTo(5,5); ctx.lineTo(7,15-ls); ctx.lineTo(11,15-ls); ctx.closePath(); ctx.fill();
+    ctx.fillRect(5,14-ls,9,2.5);
+    ctx.fillStyle = '#ffaa00';
+    ctx.beginPath(); ctx.moveTo(12,12-ls); ctx.lineTo(17,8-ls); ctx.lineTo(12,10-ls); ctx.closePath(); ctx.fill();
+
+    // Lean body (forward-leaning hunting posture)
+    ctx.save(); ctx.rotate(-0.3); ctx.scale(1.4,0.75);
+    ctx.beginPath(); ctx.arc(0,0,9,0,Math.PI*2);
     ctx.fillStyle = color;
     ctx.shadowBlur = 8; ctx.shadowColor = C.orange;
     ctx.strokeStyle = '#ffaa55'; ctx.lineWidth = 2;
     ctx.fill(); ctx.stroke(); ctx.shadowBlur = 0;
     ctx.restore();
-    // Scale spots
     ctx.fillStyle = '#cc5500';
-    ctx.beginPath(); ctx.arc(-4,-1,2,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(4,-1,2,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(0,4,2,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(-2,-2,2,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(3,-3,2,0,Math.PI*2); ctx.fill();
 
-    // Slender arms with claws
+    // Arms (forward, claws extended)
     ctx.strokeStyle = '#cc6600'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(-8,-2); ctx.lineTo(-14,5); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(-14,5); ctx.lineTo(-16,3); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(-14,5); ctx.lineTo(-16,7); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(8,-2);  ctx.lineTo(14,5);  ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(14,5);  ctx.lineTo(16,3);  ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(14,5);  ctx.lineTo(16,7);  ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(6,-4); ctx.lineTo(13,2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(13,2); ctx.lineTo(16,0); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(13,2); ctx.lineTo(16,4); ctx.stroke();
     ctx.lineCap = 'butt';
 
-    // Narrow neck
+    // Neck (low, forward lean)
     ctx.fillStyle = color;
-    ctx.fillRect(-4,-12,8,12);
-
-    // Narrow triangular head (pointed top — raptor shape)
     ctx.beginPath();
-    ctx.moveTo(0,-30); ctx.lineTo(-11,-12); ctx.lineTo(11,-12);
-    ctx.closePath();
-    ctx.fillStyle = color; ctx.fill();
+    ctx.moveTo(7,-6); ctx.lineTo(14,-13); ctx.lineTo(18,-9); ctx.lineTo(12,-2);
+    ctx.closePath(); ctx.fill();
     ctx.strokeStyle = '#ffaa55'; ctx.lineWidth = 1.5; ctx.stroke();
 
-    // Open jaw at bottom of head
+    // Narrow head
+    ctx.save(); ctx.scale(1.2,0.8);
+    ctx.beginPath(); ctx.arc(17,-13,7,0,Math.PI*2);
+    ctx.fillStyle = color; ctx.fill();
+    ctx.strokeStyle = '#ffaa55'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.restore();
+
+    // Long snout
     ctx.fillStyle = '#cc5500';
-    ctx.beginPath(); ctx.moveTo(-8,-12); ctx.lineTo(-6,-7); ctx.lineTo(6,-7); ctx.lineTo(8,-12); ctx.closePath(); ctx.fill();
-    // Sharp teeth
+    ctx.beginPath(); ctx.moveTo(16,-16); ctx.lineTo(33,-15); ctx.lineTo(33,-12); ctx.lineTo(16,-12); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(16,-12); ctx.lineTo(31,-11); ctx.lineTo(31,-9);  ctx.lineTo(16,-9);  ctx.closePath(); ctx.fill();
     ctx.fillStyle = C.white;
-    ctx.beginPath(); ctx.moveTo(-6,-12); ctx.lineTo(-7,-7); ctx.lineTo(-4,-12); ctx.fill();
-    ctx.beginPath(); ctx.moveTo(-2,-12); ctx.lineTo(-3,-7); ctx.lineTo(0,-12);  ctx.fill();
-    ctx.beginPath(); ctx.moveTo(2,-12);  ctx.lineTo(1,-7);  ctx.lineTo(4,-12);  ctx.fill();
-    ctx.beginPath(); ctx.moveTo(5,-12);  ctx.lineTo(4,-7);  ctx.lineTo(7,-12);  ctx.fill();
+    ctx.beginPath(); ctx.moveTo(19,-12); ctx.lineTo(18,-9); ctx.lineTo(21,-12); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(24,-12); ctx.lineTo(23,-9); ctx.lineTo(26,-12); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(19,-15); ctx.lineTo(18,-18); ctx.lineTo(21,-15); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(25,-15); ctx.lineTo(24,-18); ctx.lineTo(27,-15); ctx.fill();
 
-    // Feather crest on top
-    ctx.fillStyle = '#ff8800';
-    ctx.beginPath(); ctx.moveTo(-3,-30); ctx.lineTo(-5,-37); ctx.lineTo(-1,-29); ctx.fill();
-    ctx.beginPath(); ctx.moveTo(0,-30);  ctx.lineTo(0,-38);  ctx.lineTo(2,-29);  ctx.fill();
-    ctx.beginPath(); ctx.moveTo(3,-30);  ctx.lineTo(5,-37);  ctx.lineTo(6,-29);  ctx.fill();
-
-    // Two eyes (close together on narrow head)
+    // Eye (side profile)
     ctx.fillStyle = '#110000';
-    ctx.beginPath(); ctx.arc(-4,-22,3,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle = C.white; ctx.beginPath(); ctx.arc(-3,-23,1.2,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#ff6600'; ctx.fillRect(-4.7,-25,1.2,4);
-    ctx.fillStyle = '#110000';
-    ctx.beginPath(); ctx.arc(4,-22,3,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle = C.white; ctx.beginPath(); ctx.arc(5,-23,1.2,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#ff6600'; ctx.fillRect(3.5,-25,1.2,4);
+    ctx.beginPath(); ctx.arc(15,-16,3,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = C.white;
+    ctx.beginPath(); ctx.arc(15.8,-16.8,1.2,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#ff6600'; ctx.fillRect(14.5,-18.5,1.2,4);
 
     ctx.restore();
     drawEnemyHPBar(this);
@@ -634,114 +686,104 @@ class TankEnemy extends Enemy {
     this.explosionColor = C.purple;
   }
   draw() {
-    // Front-facing T-Rex — massive, terrifying
+    // Side-view T-Rex — massive, terrifying
     const color = this.flashTimer > 0 ? C.white : C.purple;
-    const ls = Math.sin(this.walkCycle * Math.PI * 2) * 3;
-    const bob = Math.abs(Math.sin(this.walkCycle * Math.PI * 2)) * 1.5;
+    const ls  = Math.sin(this.walkCycle * Math.PI * 2) * 3;
+    const face = player ? (player.x >= this.x ? 1 : -1) : 1;
     ctx.save();
-    ctx.translate(this.x, this.y - bob);
+    ctx.translate(this.x, this.y);
+    ctx.scale(face, 1);
 
-    // Massive stomping legs
+    // Thick counterbalance tail (-x direction)
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(-14,-4); ctx.quadraticCurveTo(-28,-6,-36,1); ctx.quadraticCurveTo(-28,8,-14,7);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#cc66ff'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-35,-1); ctx.lineTo(-42,2); ctx.lineTo(-35,5); ctx.fill();
+
+    // Back leg (partially behind front)
     ctx.fillStyle = '#3a0f50';
-    ctx.beginPath(); ctx.moveTo(-12,13); ctx.lineTo(-17,24+ls); ctx.lineTo(-6,24+ls); ctx.closePath(); ctx.fill();
-    ctx.fillRect(-19,23+ls,15,4);
-    ctx.fillRect(-20,20+ls,3,5); ctx.fillRect(-15,20+ls,3,5); ctx.fillRect(-9,20+ls,3,5);
-    ctx.beginPath(); ctx.moveTo(12,13);  ctx.lineTo(6,24-ls);  ctx.lineTo(17,24-ls);  ctx.closePath(); ctx.fill();
-    ctx.fillRect(4,23-ls,15,4);
-    ctx.fillRect(5,20-ls,3,5); ctx.fillRect(10,20-ls,3,5); ctx.fillRect(15,20-ls,3,5);
+    ctx.beginPath(); ctx.moveTo(-8,10); ctx.lineTo(-12,22+ls); ctx.lineTo(-4,22+ls); ctx.closePath(); ctx.fill();
+    ctx.fillRect(-14,21+ls,13,4);
+    ctx.fillRect(-15,18+ls,3,4); ctx.fillRect(-10,18+ls,3,4); ctx.fillRect(-4,18+ls,3,4);
+
+    // Front leg (main, visible)
+    ctx.fillStyle = '#4a1065';
+    ctx.beginPath(); ctx.moveTo(8,10); ctx.lineTo(5,22-ls); ctx.lineTo(13,22-ls); ctx.closePath(); ctx.fill();
+    ctx.fillRect(3,21-ls,14,4);
+    ctx.fillRect(2,18-ls,3,4); ctx.fillRect(7,18-ls,3,4); ctx.fillRect(12,18-ls,3,4);
 
     // Massive body
-    ctx.save(); ctx.scale(1.0, 1.1);
-    ctx.beginPath(); ctx.arc(0, 5, 18, 0, Math.PI*2);
+    ctx.save(); ctx.scale(1.15,1.0);
+    ctx.beginPath(); ctx.arc(0,2,19,0,Math.PI*2);
     ctx.fillStyle = color;
     ctx.shadowBlur = 14; ctx.shadowColor = C.purple;
     ctx.strokeStyle = '#cc66ff'; ctx.lineWidth = 3;
     ctx.fill(); ctx.stroke(); ctx.shadowBlur = 0;
     ctx.restore();
-    // Belly
+    // Belly lighter
     ctx.fillStyle = '#9944bb';
-    ctx.save(); ctx.scale(0.5, 0.65); ctx.beginPath(); ctx.arc(0,12,16,0,Math.PI*2); ctx.fill(); ctx.restore();
-    // Armor bumps
+    ctx.save(); ctx.scale(0.55,0.5); ctx.beginPath(); ctx.arc(4,14,18,0,Math.PI*2); ctx.fill(); ctx.restore();
+    // Dorsal armor bumps
     ctx.fillStyle = '#5a1a7a';
-    ctx.beginPath(); ctx.arc(-15,-1,4,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(15,-1,4,0,Math.PI*2);  ctx.fill();
-    ctx.beginPath(); ctx.arc(-11,-9,3,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(11,-9,3,0,Math.PI*2);  ctx.fill();
+    for (let i = -1; i <= 2; i++) { ctx.beginPath(); ctx.arc(i*8-3,-14,3.5,0,Math.PI*2); ctx.fill(); }
 
-    // Iconic TINY T-Rex arms
-    ctx.strokeStyle = '#8833bb'; ctx.lineWidth = 3.5; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(-17,-2); ctx.lineTo(-22,6);  ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(-22,6);  ctx.lineTo(-24,4);  ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(-22,6);  ctx.lineTo(-24,8);  ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(17,-2);  ctx.lineTo(22,6);   ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(22,6);   ctx.lineTo(24,4);   ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(22,6);   ctx.lineTo(24,8);   ctx.stroke();
+    // Tiny vestigial arm (iconic!)
+    ctx.strokeStyle = '#8833bb'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(14,-4); ctx.lineTo(19,3); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(19,3); ctx.lineTo(22,1); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(19,3); ctx.lineTo(22,5); ctx.stroke();
     ctx.lineCap = 'butt';
 
-    // Wide neck
+    // Thick neck connecting to head
     ctx.fillStyle = color;
-    ctx.fillRect(-10,-18,20,18);
-
-    // MASSIVE wide head (wider than body)
-    ctx.save(); ctx.scale(1.35, 1.1);
-    ctx.beginPath(); ctx.arc(0,-24,16,0,Math.PI*2);
-    ctx.fillStyle = color; ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(14,-12); ctx.lineTo(22,-18); ctx.lineTo(28,-11); ctx.lineTo(26,-4); ctx.lineTo(15,-4);
+    ctx.closePath(); ctx.fill();
     ctx.strokeStyle = '#cc66ff'; ctx.lineWidth = 2; ctx.stroke();
+
+    // MASSIVE head (profile, extends far +x)
+    ctx.save(); ctx.scale(1.2,1.0);
+    ctx.beginPath(); ctx.arc(25,-17,16,0,Math.PI*2);
+    ctx.fillStyle = color; ctx.fill();
+    ctx.strokeStyle = '#cc66ff'; ctx.lineWidth = 3; ctx.stroke();
     ctx.restore();
 
-    // Head spikes / brow ridges
-    ctx.fillStyle = '#5a1a7a';
-    ctx.beginPath(); ctx.moveTo(-15,-30); ctx.lineTo(-12,-24); ctx.lineTo(-8,-30);  ctx.fill();
-    ctx.beginPath(); ctx.moveTo(-4,-34);  ctx.lineTo(-2,-26);  ctx.lineTo(1,-34);   ctx.fill();
-    ctx.beginPath(); ctx.moveTo(4,-34);   ctx.lineTo(3,-26);   ctx.lineTo(7,-34);   ctx.fill();
-    ctx.beginPath(); ctx.moveTo(9,-30);   ctx.lineTo(12,-24);  ctx.lineTo(15,-30);  ctx.fill();
-
-    // Giant upper jaw
+    // HUGE upper jaw
     ctx.fillStyle = '#4a0060';
-    ctx.beginPath(); ctx.moveTo(-20,-16); ctx.lineTo(20,-16); ctx.lineTo(22,-8); ctx.lineTo(-22,-8); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(22,-25); ctx.lineTo(54,-22); ctx.lineTo(54,-15); ctx.lineTo(22,-18); ctx.closePath(); ctx.fill();
     ctx.strokeStyle = '#cc66ff'; ctx.lineWidth = 1.5; ctx.stroke();
     // Lower jaw
     ctx.fillStyle = '#3a0050';
-    ctx.beginPath(); ctx.moveTo(-18,-8); ctx.lineTo(18,-8); ctx.lineTo(16,-2); ctx.lineTo(-16,-2); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(22,-11); ctx.lineTo(52,-9); ctx.lineTo(52,-6); ctx.lineTo(22,-8); ctx.closePath(); ctx.fill();
 
-    // BIG teeth top
+    // BIG teeth
     ctx.fillStyle = C.white;
-    for (let i = -3; i <= 3; i++) {
-      const tx = i * 5.8;
-      ctx.beginPath(); ctx.moveTo(tx-2,-16); ctx.lineTo(tx,-11); ctx.lineTo(tx+2,-16); ctx.fill();
-    }
-    // Bottom teeth
-    for (let i = -2; i <= 2; i++) {
-      const tx = i * 5;
-      ctx.beginPath(); ctx.moveTo(tx-1.5,-8); ctx.lineTo(tx,-3); ctx.lineTo(tx+1.5,-8); ctx.fill();
+    for (let i = 0; i < 5; i++) {
+      const tx = 25 + i*5.5;
+      ctx.beginPath(); ctx.moveTo(tx,-18); ctx.lineTo(tx-2,-13); ctx.lineTo(tx+2,-18); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(tx,-11); ctx.lineTo(tx-2,-7);  ctx.lineTo(tx+2,-11); ctx.fill();
     }
 
-    // Deep-set mean eyes (front-facing)
+    // Eye (side profile — one eye, deep set)
     ctx.fillStyle = '#0a0010';
-    ctx.beginPath(); ctx.arc(-9,-25,5.5,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle = C.white; ctx.beginPath(); ctx.arc(-7.5,-26,2.2,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#ff00ff'; ctx.fillRect(-9.8,-29,2.5,7);
-    ctx.fillStyle = '#0a0010';
-    ctx.beginPath(); ctx.arc(9,-25,5.5,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle = C.white; ctx.beginPath(); ctx.arc(10.5,-26,2.2,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#ff00ff'; ctx.fillRect(7.3,-29,2.5,7);
-
-    // Furious brows
+    ctx.beginPath(); ctx.arc(26,-25,5.5,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = C.white;
+    ctx.beginPath(); ctx.arc(27.5,-26,2.2,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#ff00ff'; ctx.fillRect(25.2,-29,2.5,7);
     ctx.strokeStyle = '#dd44ff'; ctx.lineWidth = 2.5;
-    ctx.beginPath(); ctx.moveTo(-15,-31); ctx.lineTo(-5,-28); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(15,-31);  ctx.lineTo(5,-28);  ctx.stroke();
-
-    // Nostrils
+    ctx.beginPath(); ctx.moveTo(21,-30); ctx.lineTo(31,-28); ctx.stroke();
+    // Nostril
     ctx.fillStyle = '#2a0030';
-    ctx.beginPath(); ctx.arc(-4,-20,2,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(4,-20,2,0,Math.PI*2);  ctx.fill();
+    ctx.beginPath(); ctx.arc(48,-20,2,0,Math.PI*2); ctx.fill();
 
     ctx.restore();
 
-    // Prominent HP bar
+    // HP bar
     const bw = this.radius * 2.8;
     const ratio = Math.max(0, this.hp / this.maxHp);
-    const bx = this.x - bw / 2, by = this.y - this.radius - 22;
+    const bx = this.x - bw/2, by = this.y - this.radius - 20;
     ctx.fillStyle = '#222'; ctx.fillRect(bx, by, bw, 6);
     ctx.fillStyle = ratio > 0.5 ? C.teal : ratio > 0.25 ? C.yellow : C.accent;
     ctx.fillRect(bx, by, bw * ratio, 6);
